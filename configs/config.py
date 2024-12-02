@@ -1,7 +1,7 @@
 # config.py
 import os
 
-BASE_DIR = './Zdata'  # Path to your dataset directory
+BASE_DIR = './data/Zdata'  # Path to your dataset directory
 
 CONFIG = {
     "train_images_dir": os.path.join(BASE_DIR, 'img_dir/train'),
@@ -10,6 +10,9 @@ CONFIG = {
     "val_annotations_dir": os.path.join(BASE_DIR, 'ann_dir/val'),
     "batch_size": 64,
     "num_classes": 12,
-    "learning_rate": 1e-2,
+    "learning_rate": 1e-3,
+    "momentum": 0.9,
+    "weight_decay": 5e-4,
+    "nesterov": True,
     "num_epochs": 5
 }
