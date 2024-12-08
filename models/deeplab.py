@@ -2,9 +2,14 @@ import torch
 import torch.nn as nn
 from torchvision.models import resnet50
 
-# Include your ResNetBackbone, ASPP, and MyDeepLab here
+
+"""
+ResNetBackbone, ASPP, and MyDeepLab here
+"""
+
+
 class ResNetBackbone(nn.Module):
-    # Backbone implementation...
+    # Backbone implementation
     def __init__(self):
         super(ResNetBackbone, self).__init__()
         resnet = resnet50(pretrained=False)  # Use pre-trained weights if needed
@@ -14,8 +19,10 @@ class ResNetBackbone(nn.Module):
     def forward(self, x):
         return self.backbone(x)
 
+
+
 class ASPP(nn.Module):
-    # ASPP implementation...
+    # ASPP implementation
     def __init__(self, in_channels, out_channels):
         super(ASPP, self).__init__()
         self.conv_aspp1 = nn.Conv2d(in_channels, 256, kernel_size=1, stride=1, padding=0)
@@ -50,8 +57,10 @@ class ASPP(nn.Module):
         out = self.out_conv(out)  # Shape: [Batch, 256, H, W]
         return out
 
+
+
 class MyDeepLab(nn.Module):
-    # MyDeepLab implementation...
+    # MyDeepLab implementation
     def __init__(self, num_classes):
         super(MyDeepLab, self).__init__()
         self.backbone = ResNetBackbone()

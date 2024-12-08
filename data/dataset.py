@@ -6,19 +6,26 @@ from PIL import Image
 import os
 
 
-# Preprocessing
+# Preprocessing on Zdata
+
+# images transforms into 224x224 and normalization
 img_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
+# annotation squeeze the channel into 224x224
 seg_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Lambda(lambda x: x.squeeze(0).long())
 ])
 
+
+
+
+# cusomized dataset class
 class SegmentationDataset(Dataset):
     def __init__(self, image_dir, annotation_dir, img_transform=None, seg_transform=None):
         self.image_dir = image_dir
@@ -44,6 +51,7 @@ class SegmentationDataset(Dataset):
             seg = self.seg_transform(seg)
 
         return img, seg
+
 
 
 def get_dataloader(img_path, label_path, batch_size, transform=None):
