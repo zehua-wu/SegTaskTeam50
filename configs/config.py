@@ -14,7 +14,7 @@ CONFIG = {
     "momentum": 0.9,
     "weight_decay": 5e-4,
     "nesterov": True,
-    "num_epochs": 2
+    "num_epochs": 50
 }
 
 
