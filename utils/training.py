@@ -132,77 +132,50 @@ def train_one_epoch(model, dataloader, optimizer, criterion, device):
 
 
 def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger, class_names):
-    
-    # Set model to evaluation mode
     model.eval()  
-
     size = len(dataloader)
 
     total_loss = 0
     total_pixels = 0
     correct_pixels = 0
 
-    # Initialize arrays for IoU
-    total_intersection = np.zeros(num_classes)
-    total_union = np.zeros(num_classes)
-
+    all_preds = []
+    all_labels = []
 
     with torch.no_grad():
-
-        # Traverse each datum in test dataset
         for images, labels in dataloader:
-
-            # Attach to device
             images, labels = images.to(device), labels.to(device)
 
-            # Forward 
             outputs = model(images)['out']
             loss = criterion(outputs, labels)
-
-            # Accumulate total loss
             total_loss += loss.item()
 
-
-            ### Argmax logits(model predictions)
-
-            # [batch, num_classes, height, width] -> [batch, height, width]
             preds = torch.argmax(outputs, dim=1)
-
-
-
-            ### Pixel accuracy
-
-            # Correct pixel number in test dataset
             correct_pixels += (preds == labels).sum().item()
-
-            # Total pixel number in test dataset
             total_pixels += labels.numel()
 
-           
+            # 收集所有批次的预测和标签
+            all_preds.append(preds.cpu().numpy())
+            all_labels.append(labels.cpu().numpy())
 
-        ### Compute IoU and Accuracy for each class
+    # 合并所有批次数据
+    all_preds = np.concatenate(all_preds, axis=0)
+    all_labels = np.concatenate(all_labels, axis=0)
 
-        predicts_feed = preds.cpu().numpy()
-        labels_feed = labels.cpu().numpy()
+    # 计算 IoU 和精度
+    iou_scores, mean_iou = calculate_iou_for_class(all_preds, all_labels, num_classes)
+    acc_scores = calculate_accuracy_for_class(all_preds, all_labels, num_classes)
 
-        iou_scores, mean_iou = calculate_iou_for_class(predicts_feed, labels_feed, num_classes)
-
-        acc_scores = calculate_accuracy_for_class(predicts_feed, labels_feed, num_classes)
-        
-
-
-    # Calculate overall metrics
+    # 计算整体指标
     avg_loss = total_loss / size
     pixel_accuracy = correct_pixels / total_pixels
 
-
-    # Logging per-class results in table format
+    # Logging 美化表格
     logger.info("+-------------------+--------+--------+")
-    logger.info("| Class            | IoU    | Acc    |")
+    logger.info("| Class            |   IoU  |   Acc  |")
     logger.info("+-------------------+--------+--------+")
-
     for cls_idx, class_name in enumerate(class_names):
-        logger.info(f"| {class_name:<16} | {iou_scores[cls_idx]:.2f} | {acc_scores[cls_idx]:.2f} |")
+        logger.info(f"| {class_name:<16} | {iou_scores[cls_idx]:6.2f} | {acc_scores[cls_idx]:6.2f} |")
     logger.info("+-------------------+--------+--------+")
     logger.info(f"Overall Pixel Accuracy: {pixel_accuracy:.4f}")
     logger.info(f"Mean IoU: {mean_iou:.4f}")
