@@ -145,6 +145,8 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
     with torch.no_grad():
         for images, labels in dataloader:
             images, labels = images.to(device), labels.to(device)
+            assert images.device == labels.device == next(model.parameters()).device, "Device mismatch detected!"
+
 
             outputs = model(images)['out']
             loss = criterion(outputs, labels)
