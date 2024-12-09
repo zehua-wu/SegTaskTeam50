@@ -14,7 +14,11 @@ CONFIG = {
     "momentum": 0.9,
     "weight_decay": 5e-4,
     "nesterov": True,
-    "num_epochs": 50
+    "num_epochs": 1,
+    "resume_training": False,
+    "visualize":True,
+    "num_visualize_samples":5,
+    "visualize_output_dir": "./outputs/visualizations/run20241209"
 }
 
 
