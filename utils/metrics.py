@@ -56,9 +56,11 @@ def calculate_iou_for_class(preds, labels, num_classes):
 
     # Compute IoU for each class
     for cls in range(num_classes):
+
+        mask = labels != 255
         
-        intersection = ((preds == cls) & (labels == cls)).sum().item()
-        union = ((preds == cls) | (labels == cls)).sum().item()
+        intersection = ((preds == cls) & (labels == cls) & mask).sum().item()
+        union = ((preds == cls) | (labels == cls) & mask).sum().item()
         total_intersection[cls] += intersection
         total_union[cls] += union
 
@@ -90,10 +92,9 @@ def calculate_accuracy_for_class(preds, labels, num_classes):
 
     # Compute IoU and Accuracy for each class
     for cls in range(num_classes):
-        
-        correct = (preds[labels == cls] == cls).sum()
-        label_count = (labels == cls).sum()
-
+        mask = labels != 255
+        correct = ((preds[mask] == cls) & (labels[mask] == cls)).sum()
+        label_count = (labels[mask] == cls).sum()
         total_correct[cls] += correct
         total_label[cls] += label_count
 
