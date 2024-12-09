@@ -63,4 +63,4 @@ for epoch in range(num_epochs):
                                                          logger=logger,
                                                          class_names=CLASS_NAMES)
 
-   
+   torch.save(model.state_dict(), "deeplab_model_weights.pth")
