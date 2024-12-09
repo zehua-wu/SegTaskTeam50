@@ -156,23 +156,23 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
             correct_pixels += (preds == labels).sum().item()
             total_pixels += labels.numel()
 
-            # 收集所有批次的预测和标签
+            # Collect predictions and labels for each batch in TestDataLoader
             all_preds.append(preds.cpu().numpy())
             all_labels.append(labels.cpu().numpy())
 
-    # 合并所有批次数据
+    # Concatenate
     all_preds = np.concatenate(all_preds, axis=0)
     all_labels = np.concatenate(all_labels, axis=0)
 
-    # 计算 IoU 和精度
+    # Compute IoU and Accuracy for test dataset
     iou_scores, mean_iou = calculate_iou_for_class(all_preds, all_labels, num_classes)
     acc_scores = calculate_accuracy_for_class(all_preds, all_labels, num_classes)
 
-    # 计算整体指标
+    
     avg_loss = total_loss / size
     pixel_accuracy = correct_pixels / total_pixels
 
-    # Logging 美化表格
+    # Logging
     logger.info("+-------------------+--------+--------+")
     logger.info("| Class            |   IoU  |   Acc  |")
     logger.info("+-------------------+--------+--------+")
