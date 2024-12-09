@@ -26,7 +26,6 @@ print(f"using device: {device}")
 
 model = create_deeplabv3(num_classes=12, pretrained=False).to(device)
 #model = MyDeepLab(CONFIG["num_classes"])
-assert images.device == labels.device == next(model.parameters()).device, "Device mismatch detected!"
 
 
 # Loss and Optimizer
