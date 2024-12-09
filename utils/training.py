@@ -54,81 +54,13 @@ def train_one_epoch(model, dataloader, optimizer, criterion, device):
             current = batch * len(images)  
             print(f"Batch {batch}/{len(dataloader)} - Loss: {loss.item():.4f}")
 
-    
+        break
     avg_loss = total_loss / size 
 
     print(f"Average Training Loss: {avg_loss:.4f}")
 
     return avg_loss
 
-
-
-
-# def validate_one_epoch(model, dataloader, criterion, device, num_classes):
-#     """
-#     Validate the model for one epoch.
-    
-#     Args:
-#         model
-#         dataloader: DataLoader for the validation dataset.
-#         criterion: Loss function.
-#         device: Device to perform computation on ('cuda' or 'cpu').
-#         num_classes: Number of classes in the dataset.
-    
-#     Returns:
-#         avg_loss: Average loss over the validation dataset.
-#         mean_iou: Mean IoU score for all classes.
-#         pixel_accuracy: Overall pixel accuracy.
-#     """
-#     model.eval()  # Set model to evaluation mode
-#     total_loss = 0
-#     total_pixels = 0
-#     correct_pixels = 0
-
-#     # Initialize intersection and union arrays
-#     total_intersection = np.zeros(num_classes)
-#     total_union = np.zeros(num_classes)
-
-#     with torch.no_grad():
-#         for images, labels in dataloader:
-#             # Move data to device
-#             images, labels = images.to(device), labels.to(device)
-
-#             # Forward pass
-#             outputs = model(images)['out']  # 'out' for torchvision segmentation models
-#             loss = criterion(outputs, labels)
-
-#             # Update total loss
-#             total_loss += loss.item()
-
-#             # Compute pixel-wise predictions
-#             preds = torch.argmax(outputs, dim=1)  # Shape: [batch_size, height, width]
-
-#             # Calculate pixel accuracy
-#             correct_pixels += (preds == labels).sum().item()
-#             total_pixels += labels.numel()
-
-#             # Calculate intersection and union for each class
-#             for cls in range(num_classes):
-#                 intersection = ((preds == cls) & (labels == cls)).sum().item()
-#                 union = ((preds == cls) | (labels == cls)).sum().item()
-#                 total_intersection[cls] += intersection
-#                 total_union[cls] += union
-
-#     # Calculate average loss
-#     avg_loss = total_loss / len(dataloader)
-
-#     # Calculate mean IoU
-#     iou_scores = [
-#         total_intersection[cls] / total_union[cls] if total_union[cls] > 0 else 0
-#         for cls in range(num_classes)
-#     ]
-#     mean_iou = np.mean(iou_scores)
-
-#     # Calculate pixel accuracy
-#     pixel_accuracy = correct_pixels / total_pixels
-
-#     return avg_loss, mean_iou, pixel_accuracy
 
 
 def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger, class_names):
@@ -176,8 +108,8 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
     logger.info("+-------------------+--------+--------+")
     logger.info("| Class            |   IoU  |   Acc  |")
     logger.info("+-------------------+--------+--------+")
-    for cls_idx, class_name in enumerate(class_names):
-        logger.info(f"| {class_name:<16} | {iou_scores[cls_idx]:6.2f} | {acc_scores[cls_idx]:6.2f} |")
+    for cls_idx, class_name in enumerate(class_names[:len(iou_scores)]):
+        logger.info(f"| {class_name:<19} | {iou_scores[cls_idx]:6.2f} | {acc_scores[cls_idx]:6.2f} |")
     logger.info("+-------------------+--------+--------+")
     logger.info(f"Overall Pixel Accuracy: {pixel_accuracy:.4f}")
     logger.info(f"Mean IoU: {mean_iou:.4f}")
