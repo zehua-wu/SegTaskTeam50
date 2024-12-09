@@ -7,9 +7,9 @@ from data.dataset import get_dataloader
 from configs.config import CONFIG, CLASS_NAMES
 from utils.training import train_one_epoch, validate_one_epoch
 from utils.utils_logger import setup_logger
-
+from utils.checkpoint import load_checkpoint, save_checkpoint
 from models.deeplabv3 import create_deeplabv3
-
+from utils.visualize import visualize_predictions
 
 # Get data from DataLoader
 train_loader = get_dataloader(CONFIG["train_images_dir"], CONFIG["train_annotations_dir"], CONFIG["batch_size"])
@@ -39,28 +39,85 @@ optimizer = optim.SGD(model.parameters(),
 
 
 
-# Training Loop
+# # Training Loop
 
-num_epochs = CONFIG["num_epochs"]
+# num_epochs = CONFIG["num_epochs"]
 
 
-# Initialize logger
+# # Initialize logger
+# logger = setup_logger(log_file="training_validation.log")
+
+# for epoch in range(num_epochs):
+#     logger.info(f"Epoch {epoch + 1}/{num_epochs}")
+
+#     # Call train function
+#     train_loss = train_one_epoch(model, train_loader, optimizer, criterion, device)
+#     logger.info(f"Train Loss: {train_loss:.4f}")
+
+#     # Call validation function
+#     val_loss, val_miou, val_accuracy = validate_one_epoch(model, 
+#                                                          test_loader, 
+#                                                          criterion, 
+#                                                          device, 
+#                                                          num_classes=12, 
+#                                                          logger=logger,
+#                                                          class_names=CLASS_NAMES)
+
+   
+
+# start_epoch = 0
+# if CONFIG["resume_training"]:  # if resume_training = True
+#     model, optimizer, start_epoch = load_checkpoint(model, optimizer, file_path="checkpoint.pth")
+
+
+
+
+start_epoch = 0
+best_val_miou = float(0)
+
+
+if CONFIG["resume_training"]:
+    model, optimizer, start_epoch = load_checkpoint(model, optimizer, file_path="checkpoint.pth")
+
+
 logger = setup_logger(log_file="training_validation.log")
 
-for epoch in range(num_epochs):
-    logger.info(f"Epoch {epoch + 1}/{num_epochs}")
 
-    # Call train function
+for epoch in range(start_epoch, CONFIG["num_epochs"]):
+    logger.info(f"Epoch {epoch + 1}/{CONFIG['num_epochs']}")
+
+    # Training
     train_loss = train_one_epoch(model, train_loader, optimizer, criterion, device)
     logger.info(f"Train Loss: {train_loss:.4f}")
 
-    # Call validation function
-    val_loss, val_miou, val_accuracy = validate_one_epoch(model, 
-                                                         test_loader, 
-                                                         criterion, 
-                                                         device, 
-                                                         num_classes=12, 
-                                                         logger=logger,
-                                                         class_names=CLASS_NAMES)
+    # Validation
+    val_loss, val_miou, val_accuracy = validate_one_epoch(
+        model, test_loader, criterion, device, num_classes=12, logger=logger, class_names=CLASS_NAMES
+    )
+    logger.info(f"Validation Loss: {val_loss:.4f}")
 
-   torch.save(model.state_dict(), "deeplab_model_weights.pth")
+    # Save into checkpoint
+
+    if val_miou > best_val_miou:
+        best_val_miou = val_miou
+        save_checkpoint(model, optimizer, epoch, file_path="best_model.pth")
+        logger.info(f"New best model saved with Val mIoU: {val_miou:.4f}")
+
+    
+    print()
+    print(f"finsihing for epoch: {epoch+1}")
+
+
+
+
+
+if CONFIG["visualize"]:
+    logger.info("Visualizing predictions on validation set...")
+    visualize_predictions(
+        model=model,
+        dataloader=test_loader,
+        device=device,
+        class_names=CLASS_NAMES,
+        num_samples=CONFIG["num_visualize_samples"],
+        output_dir=CONFIG.get("visualize_output_dir", None)  # output direction
+    )
