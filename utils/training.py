@@ -1,50 +1,6 @@
 import torch
 import numpy as np
-from utils.iou_computing import calculate_IoU
-
-
-# def train_one_epoch(model, train_loader, criterion, optimizer, device):
-#     model.train()
-#     train_loss = 0
-#     correct = 0
-#     total = 0
-
-#     for inputs, targets in train_loader:
-#         inputs, targets = inputs.to(device), targets.to(device)
-#         outputs = model(inputs)
-#         loss = criterion(outputs['out'], targets)
-
-#         optimizer.zero_grad()
-#         loss.backward()
-#         optimizer.step()
-
-#         train_loss += loss.item()
-#         _, predicted = outputs['out'].max(1)
-#         correct += (predicted == targets).sum().item()
-#         total += targets.numel()
-
-#     accuracy = 100. * correct / total
-#     return train_loss, accuracy
-
-# def validate(model, val_loader, criterion, device):
-#     model.eval()
-#     val_loss = 0
-#     correct = 0
-#     total = 0
-
-#     with torch.no_grad():
-#         for inputs, targets in val_loader:
-#             inputs, targets = inputs.to(device), targets.to(device)
-#             outputs = model(inputs)
-#             loss = criterion(outputs['out'], targets)
-
-#             val_loss += loss.item()
-#             _, predicted = outputs['out'].max(1)
-#             correct += (predicted == targets).sum().item()
-#             total += targets.numel()
-
-#     accuracy = 100. * correct / total
-#     return val_loss, accuracy
+from utils.metrics import calculate_iou_for_class, calculate_accuracy_for_class
 
 
 
@@ -62,34 +18,45 @@ def train_one_epoch(model, dataloader, optimizer, criterion, device):
     Returns:
         avg_loss: Average loss over the training dataset.
     """
-    model.train()  # 设置为训练模式
-    total_loss = 0  # 累加损失
+    # Set into train mode
+    model.train()  
 
+    size = len(dataloader)
+    
+    # Store total loss
+    total_loss = 0  
+
+    # Traverse batches in training dataset
     for batch, (images, labels) in enumerate(dataloader):
-        # 将数据移动到设备
+        
+        # Attach to device
         images, labels = images.to(device), labels.to(device)
 
-        # 清空梯度
+        # Zero-grading
         optimizer.zero_grad()
 
-        # 前向传播
+        ### Forward
+        # Get predicts
         outputs = model(images)
+
+        # Compute loss
         loss = criterion(outputs["out"], labels)
 
-        # 反向传播和优化
+        ### Back
         loss.backward()
         optimizer.step()
 
-        # 累加损失
+        # Acumulate loss
         total_loss += loss.item()
 
-        # 打印中间过程（每 100 个 batch 输出一次）
+        
         if batch % 10 == 0:
-            current = batch * len(images)  # 已处理的样本数
+            current = batch * len(images)  
             print(f"Batch {batch}/{len(dataloader)} - Loss: {loss.item():.4f}")
 
-    # 返回平均损失
-    avg_loss = total_loss / len(dataloader)
+    
+    avg_loss = total_loss / size 
+
     print(f"Average Training Loss: {avg_loss:.4f}")
 
     return avg_loss
@@ -164,8 +131,13 @@ def train_one_epoch(model, dataloader, optimizer, criterion, device):
 #     return avg_loss, mean_iou, pixel_accuracy
 
 
-def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger):
-    model.eval()  # Set model to evaluation mode
+def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger, class_names):
+    
+    # Set model to evaluation mode
+    model.eval()  
+
+    size = len(dataloader)
+
     total_loss = 0
     total_pixels = 0
     correct_pixels = 0
@@ -174,37 +146,65 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
     total_intersection = np.zeros(num_classes)
     total_union = np.zeros(num_classes)
 
+
     with torch.no_grad():
+
+        # Traverse each datum in test dataset
         for images, labels in dataloader:
+
+            # Attach to device
             images, labels = images.to(device), labels.to(device)
 
-            # Forward pass
+            # Forward 
             outputs = model(images)['out']
             loss = criterion(outputs, labels)
 
-            # Update total loss
+            # Accumulate total loss
             total_loss += loss.item()
 
-            # Compute predictions
+
+            ### Argmax logits(model predictions)
+
+            # [batch, num_classes, height, width] -> [batch, height, width]
             preds = torch.argmax(outputs, dim=1)
 
-            # Pixel accuracy
+
+
+            ### Pixel accuracy
+
+            # Correct pixel number in test dataset
             correct_pixels += (preds == labels).sum().item()
+
+            # Total pixel number in test dataset
             total_pixels += labels.numel()
 
-            # Update IoU arrays
-            iou_scores, mean_iou = calculate_IoU(preds.cpu().numpy(), labels.cpu().numpy(), num_classes)
+           
+
+        ### Compute IoU and Accuracy for each class
+
+        predicts_feed = preds.cpu().numpy()
+        labels_feed = labels.cpu().numpy()
+
+        iou_scores, mean_iou = calculate_iou_for_class(predicts_feed, labels_feed, num_classes)
+
+        acc_scores = calculate_accuracy_for_class(predicts_feed, labels_feed, num_classes)
+        
+
 
     # Calculate overall metrics
-    avg_loss = total_loss / len(dataloader)
+    avg_loss = total_loss / size
     pixel_accuracy = correct_pixels / total_pixels
 
-    # Log results
-    logger.info(f"Validation Loss: {avg_loss:.4f}")
-    logger.info(f"Pixel Accuracy: {pixel_accuracy:.4f}")
+
+    # Logging per-class results in table format
+    logger.info("+-------------------+--------+--------+")
+    logger.info("| Class            | IoU    | Acc    |")
+    logger.info("+-------------------+--------+--------+")
+
+    for cls_idx, class_name in enumerate(class_names):
+        logger.info(f"| {class_name:<16} | {iou_scores[cls_idx]:.2f} | {acc_scores[cls_idx]:.2f} |")
+    logger.info("+-------------------+--------+--------+")
+    logger.info(f"Overall Pixel Accuracy: {pixel_accuracy:.4f}")
     logger.info(f"Mean IoU: {mean_iou:.4f}")
-    logger.info("Per-Class IoU:")
-    for cls_idx, iou in enumerate(iou_scores):
-        logger.info(f"  Class {cls_idx}: IoU = {iou:.4f}")
 
     return avg_loss, mean_iou, pixel_accuracy

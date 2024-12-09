@@ -14,5 +14,12 @@ CONFIG = {
     "momentum": 0.9,
     "weight_decay": 5e-4,
     "nesterov": True,
-    "num_epochs": 50
+    "num_epochs": 2
 }
+
+
+CLASS_NAMES = [
+    "class0", "class1", "class2", "class3", "class4", "class5",
+    "class6", "class7", "class8", "class9", "class10", "class11",
+    
+]
