@@ -8,7 +8,7 @@ from configs.config import CONFIG, CLASS_NAMES
 from utils.training import train_one_epoch, validate_one_epoch
 from utils.utils_logger import setup_logger
 
-from models.deeplab import MyDeepLab
+from models.deeplabv3 import create_deeplabv3
 
 
 # Get data from DataLoader
@@ -24,8 +24,9 @@ print(f"using device: {device}")
 
 
 
-# model = create_deeplabv3(num_classes=12, pretrained=False).to(device)
-model = MyDeepLab(CONFIG["num_classes"])
+model = create_deeplabv3(num_classes=12, pretrained=False).to(device)
+#model = MyDeepLab(CONFIG["num_classes"])
+assert images.device == labels.device == next(model.parameters()).device, "Device mismatch detected!"
 
 
 # Loss and Optimizer
