@@ -24,51 +24,17 @@ print(f"using device: {device}")
 
 
 
-model = create_deeplabv3(num_classes=12, pretrained=False).to(device)
+model = create_deeplabv3(num_classes=19, pretrained=False).to(device)
 #model = MyDeepLab(CONFIG["num_classes"])
 
 
 # Loss and Optimizer
-criterion = nn.CrossEntropyLoss()
+criterion = nn.CrossEntropyLoss(ignore_index=255)
 optimizer = optim.SGD(model.parameters(), 
                     lr=CONFIG["learning_rate"], 
                     momentum=CONFIG["momentum"], 
                     weight_decay=CONFIG["weight_decay"], 
                     nesterov=CONFIG["nesterov"])
-
-
-
-
-# # Training Loop
-
-# num_epochs = CONFIG["num_epochs"]
-
-
-# # Initialize logger
-# logger = setup_logger(log_file="training_validation.log")
-
-# for epoch in range(num_epochs):
-#     logger.info(f"Epoch {epoch + 1}/{num_epochs}")
-
-#     # Call train function
-#     train_loss = train_one_epoch(model, train_loader, optimizer, criterion, device)
-#     logger.info(f"Train Loss: {train_loss:.4f}")
-
-#     # Call validation function
-#     val_loss, val_miou, val_accuracy = validate_one_epoch(model, 
-#                                                          test_loader, 
-#                                                          criterion, 
-#                                                          device, 
-#                                                          num_classes=12, 
-#                                                          logger=logger,
-#                                                          class_names=CLASS_NAMES)
-
-   
-
-# start_epoch = 0
-# if CONFIG["resume_training"]:  # if resume_training = True
-#     model, optimizer, start_epoch = load_checkpoint(model, optimizer, file_path="checkpoint.pth")
-
 
 
 
@@ -80,7 +46,7 @@ if CONFIG["resume_training"]:
     model, optimizer, start_epoch = load_checkpoint(model, optimizer, file_path="checkpoint.pth")
 
 
-logger = setup_logger(log_file="training_validation.log")
+logger = setup_logger(log_file="training_validation1.log")
 
 
 for epoch in range(start_epoch, CONFIG["num_epochs"]):
@@ -92,7 +58,7 @@ for epoch in range(start_epoch, CONFIG["num_epochs"]):
 
     # Validation
     val_loss, val_miou, val_accuracy = validate_one_epoch(
-        model, test_loader, criterion, device, num_classes=12, logger=logger, class_names=CLASS_NAMES
+        model, test_loader, criterion, device, num_classes=19, logger=logger, class_names=CLASS_NAMES
     )
     logger.info(f"Validation Loss: {val_loss:.4f}")
 
