@@ -181,5 +181,7 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
     logger.info("+-------------------+--------+--------+")
     logger.info(f"Overall Pixel Accuracy: {pixel_accuracy:.4f}")
     logger.info(f"Mean IoU: {mean_iou:.4f}")
+    print()
+    print()
 
     return avg_loss, mean_iou, pixel_accuracy
