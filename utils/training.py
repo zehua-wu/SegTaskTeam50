@@ -46,13 +46,13 @@ def train_one_epoch(model, dataloader, optimizer, criterion, device):
         loss.backward()
         optimizer.step()
 
-        # Acumulate loss
+        # Accumulate loss
         total_loss += loss.item()
 
         
         if batch % 100 == 0:
-            current_lr = optimizer.param_groups[0]['lr']
-            print(f"Batch {batch}/{len(dataloader)} - Loss: {loss.item():.4f} - LR: {current_lr:.6f}")
+            
+            print(f"Batch {batch}/{len(dataloader)} - Loss: {loss.item():.4f}")
 
 
         
@@ -122,6 +122,5 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
     return avg_loss, mean_iou, pixel_accuracy
 
     print()
-    print()
 
-    return avg_loss, mean_iou, pixel_accuracy
+    
