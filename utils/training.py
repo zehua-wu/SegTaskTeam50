@@ -50,11 +50,11 @@ def train_one_epoch(model, dataloader, optimizer, criterion, device):
         total_loss += loss.item()
 
         
-        if batch % 10 == 0:
+        if batch % 100 == 0:
             current = batch * len(images)  
             print(f"Batch {batch}/{len(dataloader)} - Loss: {loss.item():.4f}")
 
-        break
+        
     avg_loss = total_loss / size 
 
     print(f"Average Training Loss: {avg_loss:.4f}")
@@ -106,13 +106,14 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
 
     # Logging
     logger.info("+--------------------------+---------+--------+")
-    logger.info("| Class                    |    IoU  |   Acc  |")
+    logger.info("| Class                    |   IoU   |   Acc  |")
     logger.info("+--------------------------+---------+--------+")
     for cls_idx, class_name in enumerate(class_names[:len(iou_scores)]):
-        logger.info(f"| {class_name:<19}      | {iou_scores[cls_idx]:6.2f} | {acc_scores[cls_idx]:6.2f} |")
+        logger.info(f"| {class_name:<24}| {iou_scores[cls_idx]:7.2f} | {acc_scores[cls_idx]:7.2f} |")
     logger.info("+--------------------------+---------+--------+")
     logger.info(f"Overall Pixel Accuracy: {pixel_accuracy:.4f}")
     logger.info(f"Mean IoU: {mean_iou:.4f}")
+
     print()
     print()
 
