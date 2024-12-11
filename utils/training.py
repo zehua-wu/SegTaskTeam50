@@ -105,14 +105,20 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
     pixel_accuracy = correct_pixels / total_pixels
 
     # Logging
-    logger.info("+-------------------+--------+--------+")
-    logger.info("| Class            |   IoU  |   Acc  |")
-    logger.info("+-------------------+--------+--------+")
+    logger.info("+--------------------------+---------+--------+")
+    logger.info("| Class                    |    IoU  |   Acc  |")
+    logger.info("+--------------------------+---------+--------+")
     for cls_idx, class_name in enumerate(class_names[:len(iou_scores)]):
         logger.info(f"| {class_name:<19} | {iou_scores[cls_idx]:6.2f} | {acc_scores[cls_idx]:6.2f} |")
-    logger.info("+-------------------+--------+--------+")
+    logger.info("+--------------------------+---------+--------+")
     logger.info(f"Overall Pixel Accuracy: {pixel_accuracy:.4f}")
     logger.info(f"Mean IoU: {mean_iou:.4f}")
+    print()
+    print()
+
+
+    return avg_loss, mean_iou, pixel_accuracy
+
     print()
     print()
 
