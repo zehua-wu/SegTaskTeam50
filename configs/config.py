@@ -12,7 +12,7 @@ CONFIG = {
     "num_classes": 19,
     "learning_rate": 1e-3,
     "momentum": 0.9,
-    "weight_decay": 5e-4,
+    "weight_decay": 1e-4,
     "nesterov": True,
     "num_epochs": 200,
     "resume_training": False,
