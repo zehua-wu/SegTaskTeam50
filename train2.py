@@ -70,17 +70,23 @@ for epoch in range(start_epoch, CONFIG["num_epochs"]):
         model, test_loader, criterion, device, num_classes=19, logger=logger, class_names=CLASS_NAMES
     )
     logger.info(f"Validation Loss: {val_loss:.4f}")
+    logger.info(f"Validation mIoU: {val_miou:.4f}")
+    logger.info(f"Validation Pixel Accuracy: {val_accuracy:.4f}")
 
     # Save into checkpoint
-
     if val_miou > best_val_miou:
         best_val_miou = val_miou
         save_checkpoint(model, optimizer, epoch, file_path="best_model.pth")
         logger.info(f"New best model saved with Val mIoU: {val_miou:.4f}")
 
-    
+    # Step the scheduler
+    if scheduler:
+        scheduler.step()
+        current_lr = scheduler.get_last_lr()[0]
+        logger.info(f"Learning Rate adjusted to: {current_lr:.6f}")
+
     print()
-    print(f"finsihing for epoch: {epoch+1}")
+    print(f"Finishing epoch: {epoch + 1}")
 
 
 
