@@ -51,8 +51,9 @@ def train_one_epoch(model, dataloader, optimizer, criterion, device):
 
         
         if batch % 100 == 0:
-            current = batch * len(images)  
-            print(f"Batch {batch}/{len(dataloader)} - Loss: {loss.item():.4f}")
+            current_lr = optimizer.param_groups[0]['lr']
+            print(f"Batch {batch}/{len(dataloader)} - Loss: {loss.item():.4f} - LR: {current_lr:.6f}")
+
 
         
     avg_loss = total_loss / size 
