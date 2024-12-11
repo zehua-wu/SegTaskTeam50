@@ -43,7 +43,7 @@ optimizer = optim.AdamW(model.parameters(),
                         lr=1e-3, 
                         weight_decay=1e-4)
 
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
+
 
 
 
@@ -79,15 +79,11 @@ for epoch in range(start_epoch, CONFIG["num_epochs"]):
         save_checkpoint(model, optimizer, epoch, file_path="best_model.pth")
         logger.info(f"New best model saved with Val mIoU: {val_miou:.4f}")
 
-    # Step the scheduler
-    if scheduler:
-        scheduler.step()
-        current_lr = scheduler.get_last_lr()[0]
-        logger.info(f"Learning Rate adjusted to: {current_lr:.6f}")
+   
 
     print()
     print(f"Finishing epoch: {epoch + 1}")
-
+    print()
 
 
 
