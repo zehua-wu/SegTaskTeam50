@@ -1,7 +1,7 @@
 # config.py
 import os
 
-BASE_DIR = './data/bdd100k'  # Path to your dataset directory
+BASE_DIR = '/content/drive/MyDrive/BDD100k'  # Path to your dataset directory
 
 CONFIG = {
     "train_images_dir": os.path.join(BASE_DIR, 'img_dir/train'),
@@ -14,7 +14,7 @@ CONFIG = {
     "momentum": 0.9,
     "weight_decay": 5e-4,
     "nesterov": True,
-    "num_epochs": 1,
+    "num_epochs": 200,
     "resume_training": False,
     "visualize":True,
     "num_visualize_samples":5,
