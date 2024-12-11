@@ -24,7 +24,7 @@ print(f"using device: {device}")
 
 
 
-model = create_deeplabv3(num_classes=19, pretrained=False).to(device)
+model = create_deeplabv3(num_classes=19, pretrained=True).to(device)
 #model = MyDeepLab(CONFIG["num_classes"])
 
 
