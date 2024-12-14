@@ -77,8 +77,8 @@ class SegmentationDataset(Dataset):
 
 
 # Get dataloader
-def get_dataloader(img_path, label_path, batch_size):
-    transform = SegmentationTransform(size=(224, 224))
+def get_dataloader(img_path, label_path, batch_size, H, W):
+    transform = SegmentationTransform(size=(H, W))
     dataset = SegmentationDataset(image_dir=img_path, label_dir=label_path, transform=transform)
     
     return DataLoader(dataset, batch_size, shuffle=True)
