@@ -8,7 +8,7 @@ from configs.config import CONFIG, CLASS_NAMES
 from utils.training import train_one_epoch, validate_one_epoch
 from utils.utils_logger import setup_logger
 from utils.checkpoint import load_checkpoint, save_checkpoint
-from models.deeplabv3 import create_deeplabv3
+from models.deeplabv3 import create_deeplabv3_mobilenet
 from utils.visualize import visualize_predictions
 
 # Get data from DataLoader
@@ -24,7 +24,7 @@ print(f"using device: {device}")
 
 
 
-model = create_deeplabv3(num_classes=19, pretrained=True).to(device)
+model = create_deeplabv3_mobilenet(num_classes=19, pretrained=True).to(device)
 #model = MyDeepLab(CONFIG["num_classes"])
 
 
