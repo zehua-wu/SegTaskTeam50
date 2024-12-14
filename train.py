@@ -12,9 +12,9 @@ from models.deeplabv3 import create_deeplabv3_mobilenet
 from utils.visualize import visualize_predictions
 
 # Get data from DataLoader
-train_loader = get_dataloader(CONFIG["train_images_dir"], CONFIG["train_annotations_dir"], CONFIG["batch_size"], CONFIG["H"], CONFIG["W"])
+train_loader = get_dataloader(CONFIG["train_images_dir"], CONFIG["train_annotations_dir"], CONFIG["batch_size"], H=CONFIG["H"], W=CONFIG["W"])
 #train_loader = DataLoader(train_dataset, batch_size=CONFIG["batch_size"], shuffle=True)
-test_loader = get_dataloader(CONFIG["val_images_dir"],CONFIG["val_annotations_dir"], batch_size=CONFIG["batch_size"],CONFIG["H"], CONFIG["W"])
+test_loader = get_dataloader(CONFIG["val_images_dir"],CONFIG["val_annotations_dir"], batch_size=CONFIG["batch_size"], H=CONFIG["H"], W=CONFIG["W"])
 
 
 # Model
