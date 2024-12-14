@@ -1,4 +1,4 @@
-# train.py
+# ViT training
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -47,14 +47,7 @@ if __name__ == "__main__":  # this is to correctly handle relevant process
     # Loss and Optimizer
     criterion = nn.CrossEntropyLoss(ignore_index=255)
 
-    # optimizer = optim.SGD(
-    #    model.parameters(),
-    #    lr=CONFIG["learning_rate"],
-    #    momentum=CONFIG["momentum"],
-    #    weight_decay=CONFIG["weight_decay"],
-    #    nesterov=CONFIG["nesterov"],
-    # )
-
+    
     # Suggested optimizer for transformer-based models
     optimizer = optim.AdamW(model.parameters(), lr=CONFIG["learning_rate"])
 
@@ -67,6 +60,8 @@ if __name__ == "__main__":  # this is to correctly handle relevant process
         )
 
     logger = setup_logger(log_file="training_validation_deeplab.log")
+
+
 
     for epoch in range(start_epoch, CONFIG["num_epochs"]):
         logger.info(f"Epoch {epoch + 1}/{CONFIG['num_epochs']}")
@@ -86,6 +81,8 @@ if __name__ == "__main__":  # this is to correctly handle relevant process
             class_names=CLASS_NAMES,
         )
         logger.info(f"Validation Loss: {val_loss:.4f}")
+
+
 
         # Save into checkpoint
 
