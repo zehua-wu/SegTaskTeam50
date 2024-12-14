@@ -3,32 +3,31 @@ import numpy as np
 from utils.metrics import calculate_iou_for_class, calculate_accuracy_for_class
 
 
-
 def train_one_epoch(model, dataloader, optimizer, criterion, device):
     """
     Train the model for one epoch.
-    
+
     Args:
         model: The PyTorch model.
         dataloader: DataLoader for the training dataset.
         optimizer: Optimizer for the model.
         criterion: Loss function.
         device: Device to perform computation on ('cuda' or 'cpu').
-    
+
     Returns:
         avg_loss: Average loss over the training dataset.
     """
     # Set into train mode
-    model.train()  
+    model.train()
 
     size = len(dataloader)
-    
+
     # Store total loss
-    total_loss = 0  
+    total_loss = 0
 
     # Traverse batches in training dataset
     for batch, (images, labels) in enumerate(dataloader):
-        
+
         # Attach to device
         images, labels = images.to(device), labels.to(device)
 
@@ -38,9 +37,10 @@ def train_one_epoch(model, dataloader, optimizer, criterion, device):
         ### Forward
         # Get predicts
         outputs = model(images)
+        #predictions = torch.argmax(outputs['out'], dim=1)
 
         # Compute loss
-        loss = criterion(outputs["out"], labels)
+        loss = criterion(outputs['out'], labels)
 
         ### Back
         loss.backward()
@@ -49,23 +49,22 @@ def train_one_epoch(model, dataloader, optimizer, criterion, device):
         # Accumulate loss
         total_loss += loss.item()
 
-        
         if batch % 100 == 0:
-            
+            current = batch * len(images)
             print(f"Batch {batch}/{len(dataloader)} - Loss: {loss.item():.4f}")
 
-
-        
-    avg_loss = total_loss / size 
+        # break # No need to break
+    avg_loss = total_loss / size
 
     print(f"Average Training Loss: {avg_loss:.4f}")
 
     return avg_loss
 
 
-
-def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger, class_names):
-    model.eval()  
+def validate_one_epoch(
+    model, dataloader, criterion, device, num_classes, logger, class_names
+):
+    model.eval()
     size = len(dataloader)
 
     total_loss = 0
@@ -78,10 +77,11 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
     with torch.no_grad():
         for images, labels in dataloader:
             images, labels = images.to(device), labels.to(device)
-            assert images.device == labels.device == next(model.parameters()).device, "Device mismatch detected!"
+            assert (
+                images.device == labels.device == next(model.parameters()).device
+            ), "Device mismatch detected!"
 
-
-            outputs = model(images)['out']
+            outputs = model(images)["out"]
             loss = criterion(outputs, labels)
             total_loss += loss.item()
 
@@ -101,26 +101,21 @@ def validate_one_epoch(model, dataloader, criterion, device, num_classes, logger
     iou_scores, mean_iou = calculate_iou_for_class(all_preds, all_labels, num_classes)
     acc_scores = calculate_accuracy_for_class(all_preds, all_labels, num_classes)
 
-    
     avg_loss = total_loss / size
     pixel_accuracy = correct_pixels / total_pixels
 
     # Logging
-    logger.info("+--------------------------+---------+--------+")
-    logger.info("| Class                    |   IoU   |   Acc  |")
-    logger.info("+--------------------------+---------+--------+")
-    for cls_idx, class_name in enumerate(class_names[:len(iou_scores)]):
-        logger.info(f"| {class_name:<24}| {iou_scores[cls_idx]:7.2f} | {acc_scores[cls_idx]:7.2f} |")
-    logger.info("+--------------------------+---------+--------+")
+    logger.info("+-------------------------------+--------+--------+")
+    logger.info("| Class                         |   IoU  |   Acc  |")
+    logger.info("+-------------------------------+--------+--------+")
+    for cls_idx, class_name in enumerate(class_names[: len(iou_scores)]):
+        logger.info(
+            f"| {class_name:<29} | {iou_scores[cls_idx]:6.2f} | {acc_scores[cls_idx]:6.2f} |"
+        )
+    logger.info("+-------------------------------+--------+--------+")
     logger.info(f"Overall Pixel Accuracy: {pixel_accuracy:.4f}")
     logger.info(f"Mean IoU: {mean_iou:.4f}")
-
     print()
     print()
-
 
     return avg_loss, mean_iou, pixel_accuracy
-
-    print()
-
-    
