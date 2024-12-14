@@ -43,7 +43,7 @@ best_val_miou = float(0)
 
 
 if CONFIG["resume_training"]:
-    model, optimizer, start_epoch = load_checkpoint(model, optimizer, file_path="checkpoint.pth")
+    model, optimizer, start_epoch = load_checkpoint(model, optimizer, file_path="best_model.pth")
 
 
 logger = setup_logger(log_file="training_validation1.log")
