@@ -1,7 +1,6 @@
 import torch.nn as nn
 import torchvision.models.segmentation
 
-
 def create_deeplabv3_mobilenet(num_classes, pretrained=True):
     """
     Create a DeepLabv3 model with MobileNetV3-Large backbone and modify its classifier for the specified number of classes.
@@ -13,11 +12,14 @@ def create_deeplabv3_mobilenet(num_classes, pretrained=True):
     Returns:
         model (torch.nn.Module): Modified DeepLabv3 model.
     """
-    # Use weights if pretrained=True, otherwise set to None
-    weights = DeepLabV3_MobileNet_V3_Large_Weights.COCO_WITH_VOC_LABELS_V1 if pretrained else None
+    # Initialize the model
+    model = torchvision.models.segmentation.deeplabv3_mobilenet_v3_large(pretrained=False)
 
-    # Load the DeepLabv3 model with MobileNetV3-Large backbone
-    model = torchvision.models.segmentation.deeplabv3_mobilenet_v3_large(weights=weights)
+    # Load pretrained weights if specified
+    if pretrained:
+        # Manually download the weights from the model zoo
+        state_dict = torch.hub.load('pytorch/vision:v0.15.0', 'deeplabv3_mobilenet_v3_large', pretrained=True).state_dict()
+        model.load_state_dict(state_dict)
 
     # Modify the main classifier for the specific number of classes
     model.classifier[4] = nn.Conv2d(256, num_classes, kernel_size=(1, 1))
