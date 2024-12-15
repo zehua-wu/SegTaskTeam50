@@ -18,7 +18,7 @@ CONFIG = {
     "weight_decay": 5e-4,
     "nesterov": True,
     "num_epochs": 200,
-    "resume_training": False,
+    "resume_training": True,
     "visualize": True,
     "num_visualize_samples": 5,
     "visualize_output_dir": "./outputs/visualizations",
