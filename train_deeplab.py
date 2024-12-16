@@ -66,7 +66,7 @@ for epoch in range(start_epoch, CONFIG["num_epochs"]):
 
     if val_miou > best_val_miou:
         best_val_miou = val_miou
-        save_checkpoint(model, optimizer, epoch, file_path="best_model.pth")
+        save_checkpoint(model, optimizer, epoch, file_path="best_model_deeplab.pth")
         logger.info(f"New best model saved with Val mIoU: {val_miou:.4f}")
 
     
