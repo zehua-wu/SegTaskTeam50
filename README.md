@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**SegTaskTeam50** is a semantic segmentation project based on **State Space Model, SegFormer and DeepLabV3+**. It provides a modular and extensible code structure, covering the complete workflow from data loading to model training. The project is designed for various semantic segmentation scenarios.
+**SegTaskTeam50** is a semantic segmentation project based on **State Space Model, SegFormer and DeepLabV3+**. It provides a modular and extensible code structure, covering the complete workflow from data loading to model training. The project is designed for transportation semantic segmentation scenarios.
 
 ---
 
@@ -97,3 +97,5 @@ Huayi Tang [huayit@seas.upenn.edu],
 Zehua Wu [zehuawu@seas.upenn.edu],
 Haojia WU [wuhaojia@seas.upenn.edu]
 
+
+All rights reserved by University of Pennsylvania
