@@ -30,33 +30,30 @@ test_loader = get_dataloader(
 )
 
 if __name__ == "__main__":  # this is to correctly handle relevant process
-    # Model
+   
+  
+    MODEL_NAME = "segformer"  
 
+    # Device setup
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"using device: {device}")
 
+    # Initialize model, criterion, and optimizer
     model = create_wrapped_segformer(num_classes=19).to(device)
 
-
-    # Loss and Optimizer
     criterion = nn.CrossEntropyLoss(ignore_index=255)
-
-    
-    # Suggested optimizer for transformer-based models
     optimizer = optim.AdamW(model.parameters(), lr=CONFIG["learning_rate"])
-
+    
+    # Load checkpoint if resuming training
     start_epoch = 0
-    best_val_miou = float(0)
+    best_val_miou = 0.0
 
     if CONFIG["resume_training"]:
-        model, optimizer, start_epoch = load_checkpoint(
-            model, optimizer, file_path="best_model.pth"
-        )
+        model, optimizer, start_epoch = load_checkpoint(model, optimizer, MODEL_NAME)
 
-    logger = setup_logger(log_file="training_validation_deeplab.log")
+    # Setup logger
+    logger = setup_logger(MODEL_NAME)
 
-
-
+    # Training Loop
     for epoch in range(start_epoch, CONFIG["num_epochs"]):
         logger.info(f"Epoch {epoch + 1}/{CONFIG['num_epochs']}")
 
@@ -66,28 +63,19 @@ if __name__ == "__main__":  # this is to correctly handle relevant process
 
         # Validation
         val_loss, val_miou, val_accuracy = validate_one_epoch(
-            model,
-            test_loader,
-            criterion,
-            device,
-            num_classes=19,
-            logger=logger,
-            class_names=CLASS_NAMES,
+            model, test_loader, criterion, device, num_classes=19, logger=logger, class_names=CLASS_NAMES
         )
-        logger.info(f"Validation Loss: {val_loss:.4f}")
+        logger.info(f"Validation Loss: {val_loss:.4f}, Val mIoU: {val_miou:.4f}")
 
-
-
-        # Save into checkpoint
-
+        # Save Best Checkpoint
         if val_miou > best_val_miou:
             best_val_miou = val_miou
-            save_checkpoint(model, optimizer, epoch, file_path="best_model_vit.pth")
+            save_checkpoint(model, optimizer, epoch, MODEL_NAME)
             logger.info(f"New best model saved with Val mIoU: {val_miou:.4f}")
 
-        print()
-        print(f"finsihing for epoch: {epoch+1}")
+        print(f"Finished epoch {epoch + 1}\n")
 
+    # Visualization
     if CONFIG["visualize"]:
         logger.info("Visualizing predictions on validation set...")
         visualize_predictions(
@@ -96,5 +84,6 @@ if __name__ == "__main__":  # this is to correctly handle relevant process
             device=device,
             class_names=CLASS_NAMES,
             num_samples=CONFIG["num_visualize_samples"],
-            output_dir=CONFIG.get("visualize_output_dir", None),  # output direction
+            output_dir=f"outputs/{MODEL_NAME}_visualizations",
         )
+
