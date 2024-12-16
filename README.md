@@ -9,17 +9,45 @@
 ## Project Structure
 
 ```bash
-project/
-├── data/
-│   └── dataset.py       # Data loading and dataset definition
-├── models/
-│   └── deeplabv3.py     # DeepLabV3 model definition
-├── utils/
-│   └── helpers.py       # Utility functions
-├── configs/
-│   └── config.py        # Configuration settings
-├── train.py             # Training script
-└── requirements.txt     # Project dependencies
+SegTaskTeam50/
+├── configs/                    
+│   ├── config.py              # General configuration settings
+│   └── config_mamba.py        # Mamba-specific configurations
+│   
+│
+├── data/                      
+│   └── dataset.py             # Dataset loading and preparation
+│   
+│
+├── models/                    
+│   ├── csm_triton.py          # Triton-based segmentation model
+│   ├── csm65s.py              # Custom segmentation model version 65s
+│   ├── deeplab.py             # DeepLab model implementation
+│   ├── deeplabv3.py           # DeepLabV3 model implementation
+│   ├── mamba2.py              # Mamba model version 2
+│   ├── mamba2seg.py           # Mamba segmentation model
+│   └── segformer.py           # SegFormer model definition
+│   
+│
+├── outputs/
+│   └── visualizations/        # Model predictions and visual outputs
+│       
+│
+├── utils/                     
+│   ├── checkpoint.py          # Checkpoint management for saving models
+│   ├── metrics.py             # Evaluation metrics functions
+│   ├── training.py            # Training utilities and scripts
+│   ├── utils_logger.py        # Logging utilities
+│   └── visualize.py           # Functions to visualize predictions/results
+│   
+│
+├── train_deeplab.py           # Training script for DeepLab model
+├── train_mamba2.py            # Training script for Mamba2 model
+├── train_segformer.py         # Training script for SegFormer model
+├── requirements.txt           # Dependencies and libraries
+└── README.md                  # Project documentation
+
+
 ```
 
 To clone the repository and conduct experiments in Colab, here is the instruction:
