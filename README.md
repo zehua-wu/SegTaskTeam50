@@ -39,5 +39,30 @@ drive.mount('/content/drive')
 ```
 You are suggested to put BDD100k semantic segmentation dataset into your Google drive and organize in the way what we setup in config.py.
 
+Step 3: Navigate to the cloned project directory and install the required Python dependencies:
+
+```bash
+pip install -r requirements.txt
+
+```
+
+Step 4: How to Train the Model
+Ensure the dataset is prepared and stored in the specified directory.
+Configure the configs/config.py file to adjust hyperparameters and paths.
+Run the training script:
+```bash
+python train.py
+
+```
 
 
+Contribution Guidelines
+Contributions are welcome! To contribute:
+
+Fork the repository.
+Create a new branch.
+Submit a pull request with your changes.
+Please ensure your code follows the project’s coding standards.
+
+For any questions or feedback, feel free to contact the project author:
+zehuawu@seas.upenn.edu
