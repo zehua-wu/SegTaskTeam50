@@ -65,4 +65,7 @@ Submit a pull request with your changes.
 Please ensure your code follows the project’s coding standards.
 
 For any questions or feedback, feel free to contact the project author:
-zehuawu@seas.upenn.edu
+Huayi Tang [huayit@seas.upenn.edu],
+Zehua Wu [zehuawu@seas.upenn.edu],
+Haojia WU [wuhaojia@seas.upenn.edu]
+
