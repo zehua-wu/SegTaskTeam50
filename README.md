@@ -53,7 +53,7 @@ SegTaskTeam50/
 To clone the repository and conduct experiments in Colab, here is the instruction:
 Step 1: Clone the specific branch branch6, run the following command:
 ```bash
-branch_name="branch6"
+branch_name="branch7"
 repo_url="https://github.com/zehua-wu/SegTaskTeam50.git"
 git clone -b ${branch_name} ${repo_url}
 
