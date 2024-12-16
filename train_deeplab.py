@@ -17,38 +17,37 @@ train_loader = get_dataloader(CONFIG["train_images_dir"], CONFIG["train_annotati
 test_loader = get_dataloader(CONFIG["val_images_dir"],CONFIG["val_annotations_dir"], batch_size=CONFIG["batch_size"], H=CONFIG["H"], W=CONFIG["W"])
 
 
-# Model
 
+# Unique settings for each model
+
+# Change this to "mamba2" or "segformer" for other scripts
+MODEL_NAME = "deeplabv3"  
+
+# Device setup
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"using device: {device}")
 
-
-
+# Initialize model, criterion, and optimizer
 model = create_deeplabv3_mobilenet(num_classes=19, pretrained=True).to(device)
-#model = MyDeepLab(CONFIG["num_classes"])
-
-
-# Loss and Optimizer
 criterion = nn.CrossEntropyLoss(ignore_index=255)
-optimizer = optim.SGD(model.parameters(), 
-                    lr=CONFIG["learning_rate"], 
-                    momentum=CONFIG["momentum"], 
-                    weight_decay=CONFIG["weight_decay"], 
-                    nesterov=CONFIG["nesterov"])
+optimizer = optim.SGD(
+    model.parameters(),
+    lr=CONFIG["learning_rate"],
+    momentum=CONFIG["momentum"],
+    weight_decay=CONFIG["weight_decay"],
+    nesterov=CONFIG["nesterov"],
+)
 
-
-
+# Load checkpoint if resuming training
 start_epoch = 0
-best_val_miou = float(0)
-
+best_val_miou = 0.0
 
 if CONFIG["resume_training"]:
-    model, optimizer, start_epoch = load_checkpoint(model, optimizer, file_path="best_model.pth")
+    model, optimizer, start_epoch = load_checkpoint(model, optimizer, MODEL_NAME)
 
+# Setup logger
+logger = setup_logger(MODEL_NAME)
 
-logger = setup_logger(log_file="training_validation1.log")
-
-
+# Training Loop
 for epoch in range(start_epoch, CONFIG["num_epochs"]):
     logger.info(f"Epoch {epoch + 1}/{CONFIG['num_epochs']}")
 
@@ -60,23 +59,17 @@ for epoch in range(start_epoch, CONFIG["num_epochs"]):
     val_loss, val_miou, val_accuracy = validate_one_epoch(
         model, test_loader, criterion, device, num_classes=19, logger=logger, class_names=CLASS_NAMES
     )
-    logger.info(f"Validation Loss: {val_loss:.4f}")
+    logger.info(f"Validation Loss: {val_loss:.4f}, Val mIoU: {val_miou:.4f}")
 
-    # Save into checkpoint
-
+    # Save Best Checkpoint
     if val_miou > best_val_miou:
         best_val_miou = val_miou
-        save_checkpoint(model, optimizer, epoch, file_path="best_model_deeplab.pth")
+        save_checkpoint(model, optimizer, epoch, MODEL_NAME)
         logger.info(f"New best model saved with Val mIoU: {val_miou:.4f}")
 
-    
-    print()
-    print(f"finsihing for epoch: {epoch+1}")
+    print(f"Finished epoch {epoch + 1}\n")
 
-
-
-
-
+# Visualization
 if CONFIG["visualize"]:
     logger.info("Visualizing predictions on validation set...")
     visualize_predictions(
@@ -85,5 +78,5 @@ if CONFIG["visualize"]:
         device=device,
         class_names=CLASS_NAMES,
         num_samples=CONFIG["num_visualize_samples"],
-        output_dir=CONFIG.get("visualize_output_dir", None)  # output direction
+        output_dir=f"outputs/{MODEL_NAME}_visualizations",
     )
