@@ -3,8 +3,7 @@ Project Overview
 SegTaskTeam50 is a semantic segmentation project based on DeepLabV3. It provides a modular and extensible code structure, covering the complete workflow from data loading to model training. The project is designed for various semantic segmentation scenarios.
 
 Project Structure
-bash
-Copy code
+
 project/
 ├── data/
 │   └── dataset.py       # Data loading and dataset definition
@@ -25,30 +24,26 @@ requirements.txt: Python dependencies required for the project.
 Clone the Repository
 Use the following command to clone the specific branch branch6:
 
-bash
-Copy code
+
 branch_name="branch6"
 repo_url="https://github.com/zehua-wu/SegTaskTeam50.git"
 !git clone -b ${branch_name} ${repo_url}
 Environment Setup
 It is recommended to use Google Colab for running the project and mount Google Drive to save training results. Use the following command to mount Drive:
 
-python
-Copy code
+
 from google.colab import drive
 drive.mount('/content/drive')
 Install Dependencies
 Run the following command in the cloned project directory to install all required dependencies:
 
-bash
-Copy code
+
 pip install -r requirements.txt
 How to Train the Model
 Ensure the dataset is prepared and stored in the specified directory.
 Configure the configs/config.py file to adjust hyperparameters and paths.
 Run train.py to start training:
-bash
-Copy code
+
 python train.py
 Data Loading Module
 data/dataset.py provides a flexible data loading mechanism and supports extending preprocessing pipelines for custom datasets.
