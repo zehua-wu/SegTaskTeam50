@@ -77,7 +77,7 @@ if __name__ == "__main__":  # this is to correctly handle relevant process
 
     if CONFIG["resume_training"]:
         model, optimizer, start_epoch = load_checkpoint(
-            model, optimizer, file_path = "checkpoint_dp.pth"
+            model, optimizer, file_path = "checkpoint.pth"
         )
 
     logger = setup_logger(log_file = "training_validation_mamba2.log")
