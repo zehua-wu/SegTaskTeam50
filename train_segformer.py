@@ -50,7 +50,7 @@ if __name__ == "__main__":  # this is to correctly handle relevant process
 
     if CONFIG["resume_training"]:
         model, optimizer, start_epoch = load_checkpoint(
-            model, optimizer, file_path="checkpoint_dp.pth"
+            model, optimizer, file_path="best_model.pth"
         )
 
     logger = setup_logger(log_file="training_validation_deeplab.log")
@@ -82,7 +82,7 @@ if __name__ == "__main__":  # this is to correctly handle relevant process
 
         if val_miou > best_val_miou:
             best_val_miou = val_miou
-            save_checkpoint(model, optimizer, epoch, file_path="best_model_deeplab.pth")
+            save_checkpoint(model, optimizer, epoch, file_path="best_model_vit.pth")
             logger.info(f"New best model saved with Val mIoU: {val_miou:.4f}")
 
         print()
