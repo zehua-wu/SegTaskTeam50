@@ -1,4 +1,4 @@
-# ViT training
+# SegFormer training
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -34,12 +34,6 @@ if __name__ == "__main__":  # this is to correctly handle relevant process
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"using device: {device}")
-
-    # model = create_deeplabv3(num_classes=19, pretrained=True).to(device)
-    # model = MyDeepLab(CONFIG["num_classes"])
-
-    # model = create_deeplabv3_mobilenet(num_classes=19).to(device)
-
 
     model = create_wrapped_segformer(num_classes=19).to(device)
 
