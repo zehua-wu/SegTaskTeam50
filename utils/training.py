@@ -1,46 +1,121 @@
 import torch
-import torch.nn as nn
-import torch.optim as optim
+import numpy as np
+from utils.metrics import calculate_iou_for_class, calculate_accuracy_for_class
 
-def train_one_epoch(model, train_loader, criterion, optimizer, device):
+
+def train_one_epoch(model, dataloader, optimizer, criterion, device):
+    """
+    Train the model for one epoch.
+
+    Args:
+        model: The PyTorch model.
+        dataloader: DataLoader for the training dataset.
+        optimizer: Optimizer for the model.
+        criterion: Loss function.
+        device: Device to perform computation on ('cuda' or 'cpu').
+
+    Returns:
+        avg_loss: Average loss over the training dataset.
+    """
+    # Set into train mode
     model.train()
-    train_loss = 0
-    correct = 0
-    total = 0
 
-    for inputs, targets in train_loader:
-        inputs, targets = inputs.to(device), targets.to(device)
-        outputs = model(inputs)
-        loss = criterion(outputs['out'], targets)
+    size = len(dataloader)
 
+    # Store total loss
+    total_loss = 0
+
+    # Traverse batches in training dataset
+    for batch, (images, labels) in enumerate(dataloader):
+
+        # Attach to device
+        images, labels = images.to(device), labels.to(device)
+
+        # Zero-grading
         optimizer.zero_grad()
+
+        ### Forward
+        # Get predicts
+        outputs = model(images)
+        #predictions = torch.argmax(outputs['out'], dim=1)
+
+        # Compute loss
+        loss = criterion(outputs['out'], labels)
+
+        ### Back
         loss.backward()
         optimizer.step()
 
-        train_loss += loss.item()
-        _, predicted = outputs['out'].max(1)
-        correct += (predicted == targets).sum().item()
-        total += targets.numel()
+        # Accumulate loss
+        total_loss += loss.item()
 
-    accuracy = 100. * correct / total
-    return train_loss, accuracy
+        if batch % 100 == 0:
+            current = batch * len(images)
+            print(f"Batch {batch}/{len(dataloader)} - Loss: {loss.item():.4f}")
 
-def validate(model, val_loader, criterion, device):
+        # break # No need to break
+    avg_loss = total_loss / size
+
+    print(f"Average Training Loss: {avg_loss:.4f}")
+
+    return avg_loss
+
+
+def validate_one_epoch(
+    model, dataloader, criterion, device, num_classes, logger, class_names
+):
     model.eval()
-    val_loss = 0
-    correct = 0
-    total = 0
+    size = len(dataloader)
+
+    total_loss = 0
+    total_pixels = 0
+    correct_pixels = 0
+
+    all_preds = []
+    all_labels = []
 
     with torch.no_grad():
-        for inputs, targets in val_loader:
-            inputs, targets = inputs.to(device), targets.to(device)
-            outputs = model(inputs)
-            loss = criterion(outputs['out'], targets)
+        for images, labels in dataloader:
+            images, labels = images.to(device), labels.to(device)
+            assert (
+                images.device == labels.device == next(model.parameters()).device
+            ), "Device mismatch detected!"
 
-            val_loss += loss.item()
-            _, predicted = outputs['out'].max(1)
-            correct += (predicted == targets).sum().item()
-            total += targets.numel()
+            outputs = model(images)["out"]
+            loss = criterion(outputs, labels)
+            total_loss += loss.item()
 
-    accuracy = 100. * correct / total
-    return val_loss, accuracy
+            preds = torch.argmax(outputs, dim=1)
+            correct_pixels += (preds == labels).sum().item()
+            total_pixels += labels.numel()
+
+            # Collect predictions and labels for each batch in TestDataLoader
+            all_preds.append(preds.cpu().numpy())
+            all_labels.append(labels.cpu().numpy())
+
+    # Concatenate
+    all_preds = np.concatenate(all_preds, axis=0)
+    all_labels = np.concatenate(all_labels, axis=0)
+
+    # Compute IoU and Accuracy for test dataset
+    iou_scores, mean_iou = calculate_iou_for_class(all_preds, all_labels, num_classes)
+    acc_scores = calculate_accuracy_for_class(all_preds, all_labels, num_classes)
+
+    avg_loss = total_loss / size
+    pixel_accuracy = correct_pixels / total_pixels
+
+    # Logging
+    logger.info("+-------------------------------+--------+--------+")
+    logger.info("| Class                         |   IoU  |   Acc  |")
+    logger.info("+-------------------------------+--------+--------+")
+    for cls_idx, class_name in enumerate(class_names[: len(iou_scores)]):
+        logger.info(
+            f"| {class_name:<29} | {iou_scores[cls_idx]:6.2f} | {acc_scores[cls_idx]:6.2f} |"
+        )
+    logger.info("+-------------------------------+--------+--------+")
+    logger.info(f"Overall Pixel Accuracy: {pixel_accuracy:.4f}")
+    logger.info(f"Mean IoU: {mean_iou:.4f}")
+    print()
+    print()
+
+    return avg_loss, mean_iou, pixel_accuracy
